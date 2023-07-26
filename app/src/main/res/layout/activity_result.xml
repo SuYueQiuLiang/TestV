@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.ResultActivity"
+    android:background="@color/theme_color_second"
+    android:fitsSystemWindows="true">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/back_btn"
+        android:src="@drawable/back_icon"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="13dp"
+        android:layout_width="30dp"
+        android:layout_height="30dp"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:text="@string/server"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/back_btn"
+        app:layout_constraintBottom_toBottomOf="@id/back_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:layout_marginTop="25dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/back_btn"
+        android:id="@+id/cat_img"
+        android:layout_width="145dp"
+        android:layout_height="105dp"/>
+
+    <View
+        android:id="@+id/card_bg"
+        android:background="@drawable/shape_result_card_bg"
+        android:layout_marginTop="30dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cat_img"
+        android:layout_width="177dp"
+        android:layout_height="50dp"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/flag_img"
+        android:layout_marginStart="12dp"
+        app:layout_constraintBottom_toBottomOf="@id/card_bg"
+        app:layout_constraintTop_toTopOf="@id/card_bg"
+        app:layout_constraintStart_toStartOf="@id/card_bg"
+        android:layout_width="40dp"
+        android:layout_height="27dp"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_marginHorizontal="12dp"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="@id/card_bg"
+        app:layout_constraintStart_toEndOf="@id/flag_img"
+        app:layout_constraintBottom_toBottomOf="@id/card_bg"
+        app:layout_constraintTop_toTopOf="@id/card_bg"
+        android:id="@+id/country_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/connect_state"
+        android:textSize="17sp"
+        android:textColor="@color/white"
+        android:layout_marginTop="23dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/card_bg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
