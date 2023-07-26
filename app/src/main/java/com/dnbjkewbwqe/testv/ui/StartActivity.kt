@@ -17,6 +17,10 @@ class StartActivity : BaseActivity<ActivityStartBinding, StartActivityViewModel>
 
     }
 
+    override fun onBackPressed() {
+
+    }
+
     override fun bindingData() {
         viewModel.progress.observe(this){
             binding.progressBar.progress = it
