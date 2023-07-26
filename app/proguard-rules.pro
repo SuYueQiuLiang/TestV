@@ -158,3 +158,4 @@
 -keep interface com.squareup.okhttp.** { *; }
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }
+-dontwarn com.dnbjkewbwqe.testv.StringFog
