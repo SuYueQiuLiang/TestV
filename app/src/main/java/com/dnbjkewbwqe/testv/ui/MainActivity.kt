@@ -14,6 +14,7 @@ import com.dnbjkewbwqe.testv.firstUse
 import com.dnbjkewbwqe.testv.ui.viewmodel.MainActivityViewModel
 import com.dnbjkewbwqe.testv.utils.IpUtil
 import com.dnbjkewbwqe.testv.utils.ServerManager
+import com.dnbjkewbwqe.testv.utils.SettingUtil
 import com.dnbjkewbwqe.testv.utils.startActivity
 import com.github.shadowsocks.bg.BaseService
 import com.gyf.immersionbar.ImmersionBar
@@ -66,6 +67,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
         binding.serverBtn.setOnClickListener(this)
         binding.robotImg.setOnClickListener(this)
         binding.connectBtn.setOnClickListener(this)
+
+        binding.drawer.privacy.setOnClickListener(this)
+        binding.drawer.share.setOnClickListener(this)
+        binding.drawer.update.setOnClickListener(this)
 
         viewModel.connectService(this)
 
@@ -159,6 +164,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
                 active = false
                 viewModel.switch()
             }
+            binding.drawer.privacy -> SettingUtil.privacy(this)
+            binding.drawer.share -> SettingUtil.shareApp(this)
+            binding.drawer.update -> SettingUtil.updateApp(this)
         }
     }
 
