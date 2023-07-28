@@ -1,10 +1,12 @@
 package com.dnbjkewbwqe.testv.ui
 
 import android.app.Activity
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.dnbjkewbwqe.testv.R
+import com.dnbjkewbwqe.testv.ad.AdManager
 import com.dnbjkewbwqe.testv.beans.TestServer
 import com.dnbjkewbwqe.testv.databinding.ActivityTestServerListBinding
 import com.dnbjkewbwqe.testv.ui.adapter.ServerRecyclerViewAdapter
@@ -13,7 +15,7 @@ import com.dnbjkewbwqe.testv.utils.ServerManager
 import com.github.shadowsocks.bg.BaseService
 import com.gyf.immersionbar.ImmersionBar
 
-class TestServerListActivity : BaseActivity<ActivityTestServerListBinding, TestServerListActivityViewModel>() {
+class TestServerListActivity : BaseActivity<ActivityTestServerListBinding, TestServerListActivityViewModel>(), View.OnClickListener {
     lateinit var state: BaseService.State
     override fun setView() {
         ImmersionBar.with(this)
@@ -36,13 +38,19 @@ class TestServerListActivity : BaseActivity<ActivityTestServerListBinding, TestS
         binding.recyclerView.adapter = adapter
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
 
-        binding.backBtn.setOnClickListener { finish() }
+        binding.backBtn.setOnClickListener(this)
+        viewModel.loadHomely()
     }
 
-    override fun bindingData() {
-
+    override fun onBackPressed() {
+        showHomely()
     }
 
+    private fun showHomely(){
+        AdManager.cre_pen.showAd(this){
+            finish()
+        }
+    }
     private fun showDisconnectAlert(server: TestServer) {
         val alertDialog = AlertDialog.Builder(this)
             .setMessage(R.string.change_vpn_dialog_message)
@@ -58,5 +66,10 @@ class TestServerListActivity : BaseActivity<ActivityTestServerListBinding, TestS
 
     override val binding: ActivityTestServerListBinding by lazy { ActivityTestServerListBinding.inflate(layoutInflater) }
     override val viewModel: TestServerListActivityViewModel by viewModels()
+    override fun onClick(v: View?) {
+        when(v){
+            binding.backBtn -> showHomely()
+        }
+    }
 
 }

@@ -9,4 +9,6 @@
     <color name="theme_color">#F3DA57</color>
     <color name="theme_color_second">#313132</color>
     <color name="theme_color_second_var">#474748</color>
+
+    <color name="white_grey">#F6F6F6</color>
 </resources>

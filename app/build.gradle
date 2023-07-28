@@ -47,6 +47,9 @@ android {
 }
 
 dependencies {
+    implementation 'com.google.android.gms:play-services-ads:22.2.0'
+    implementation 'com.android.installreferrer:installreferrer:2.2'
+
     implementation 'com.geyifeng.immersionbar:immersionbar:3.2.2'
     implementation 'com.geyifeng.immersionbar:immersionbar-ktx:3.2.2'
 

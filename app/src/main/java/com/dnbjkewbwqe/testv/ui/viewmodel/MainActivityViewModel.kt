@@ -4,8 +4,11 @@ import android.net.VpnService
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.dnbjkewbwqe.testv.ui.MainActivity
+import androidx.lifecycle.viewModelScope
 import com.dnbjkewbwqe.testv.R
+import com.dnbjkewbwqe.testv.ad.AdManager
+import com.dnbjkewbwqe.testv.ad.BaseAdLoader
+import com.dnbjkewbwqe.testv.ui.MainActivity
 import com.dnbjkewbwqe.testv.utils.ActivityManager
 import com.dnbjkewbwqe.testv.utils.IpUtil
 import com.dnbjkewbwqe.testv.utils.ServerManager
@@ -29,60 +32,72 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
     val state: MutableLiveData<BaseService.State> = MutableLiveData()
     val service by lazy { ShadowsocksConnection(true) }
     private lateinit var activity: WeakReference<MainActivity>
-    private var connectJob : Job? = null
+    private var connectJob: Job? = null
+    var interruptStateChange = false
 
     fun connectVPN() {
         val startTimeStamp = System.currentTimeMillis()
         val delayTo = startTimeStamp + 2000
         connectJob = MainScope().launch(Dispatchers.IO) {
-            if(!ServerManager.online()){
-                showNetworkAlert()
+            if (!ServerManager.online()) {
+                withContext(Dispatchers.Main) { showNetworkAlert() }
                 return@launch
             }
             state.postValue(BaseService.State.Connecting)
-            if(IpUtil.isInBlackList()){
-                withContext(Dispatchers.Main){ showPolicyAlert() }
+            if (IpUtil.isInBlackList()) {
+                withContext(Dispatchers.Main) { showPolicyAlert() }
                 return@launch
             }
+            withContext(Dispatchers.Main) { loadHomely() }
+            while (System.currentTimeMillis() < (startTimeStamp + 10000) && (AdManager.cre_hesit.hasAvailableCachedAd()
+                    .not() || AdManager.cre_cious.hasAvailableCachedAd().not())
+            )
+                delay(500)
             while (System.currentTimeMillis() < delayTo)
                 delay(200)
-
             val server = ServerManager.getFasterServer()
             val profile: Profile = with(server) {
                 Profile(name = testiy, host = testip, remotePort = testpo, password = testord, method = testme)
             }
             ProfileManager.clear()
             DataStore.profileId = ProfileManager.createProfile(profile).id
-            if(isActive)
+            if (isActive)
                 Core.startService()
         }
-
     }
 
     private fun disconnectVPN() {
+        val startTimeStamp = System.currentTimeMillis()
+        val delayTo = startTimeStamp + 2000
         connectJob = MainScope().launch(Dispatchers.IO) {
             state.postValue(BaseService.State.Stopping)
-            delay(2000L)
-            if(isActive)
+            withContext(Dispatchers.Main) { loadHomely() }
+            while (System.currentTimeMillis() < (startTimeStamp + 10000) && (AdManager.cre_hesit.hasAvailableCachedAd()
+                    .not() || AdManager.cre_cious.hasAvailableCachedAd().not())
+            )
+                delay(500)
+            while (System.currentTimeMillis() < delayTo)
+                delay(200)
+            if (isActive)
                 Core.stopService()
         }
     }
 
-    private fun showNetworkAlert(){
+    private fun showNetworkAlert() {
         activity.get()?.let {
             val alertDialog = AlertDialog.Builder(it)
                 .setMessage(R.string.network_dialog_message)
-                .setPositiveButton(R.string.ok){_,_-> }
+                .setPositiveButton(R.string.ok) { _, _ -> }
                 .create()
             alertDialog.show()
         }
     }
 
-    fun showPolicyAlert(){
+    fun showPolicyAlert() {
         activity.get()?.let {
             val alertDialog = AlertDialog.Builder(it)
                 .setMessage(R.string.policy_dialog_message)
-                .setPositiveButton(R.string.confirm){_,_->
+                .setPositiveButton(R.string.confirm) { _, _ ->
                     ActivityManager.finishAPP()
                 }
                 .setCancelable(false)
@@ -101,9 +116,8 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
         this.activity = WeakReference(activity)
     }
 
-    var interceptState = false
     override fun stateChanged(state: BaseService.State, profileName: String?, msg: String?) {
-        if (interceptState)
+        if (interruptStateChange)
             return
         when (state) {
             BaseService.State.Stopping, BaseService.State.Connecting -> {}
@@ -115,12 +129,12 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
         state.postValue(BaseService.State.values()[service.state])
     }
 
-    private fun checkPermission() : Boolean {
+    private fun checkPermission(): Boolean {
         VpnService.prepare(activity.get()).let { return it == null }
     }
 
 
-    private fun requestPermission(){
+    private fun requestPermission() {
         VpnService.prepare(activity.get()).let {
             activity.get()?.requestPermissionForResult?.launch(it)
         }
@@ -128,7 +142,7 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
 
     fun switch() {
         when (state.value) {
-            BaseService.State.Idle, BaseService.State.Stopped -> if(checkPermission()) connectVPN() else requestPermission()
+            BaseService.State.Idle, BaseService.State.Stopped -> if (checkPermission()) connectVPN() else requestPermission()
             BaseService.State.Connected -> disconnectVPN()
             else -> {}
         }
@@ -138,14 +152,84 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
         connectJob?.cancel()
         state.postValue(BaseService.State.values()[service.service?.state ?: 0])
     }
-    fun tryInterruptConnect() : Boolean?{
-        if(state.value == BaseService.State.Stopping){
+
+    fun tryInterruptConnect(): Boolean? {
+        if (state.value == BaseService.State.Stopping) {
             interruptConnect()
             return true
         }
-        if(state.value == BaseService.State.Connecting){
+        if (state.value == BaseService.State.Connecting) {
             return false
         }
         return null
+    }
+
+    fun loadHomely() {
+        AdManager.cre_hesit.loadAd(object : BaseAdLoader.OnLoadAdCallBack {
+            override fun onLoadFailed() {
+                viewModelScope.launch {
+                    delay(1000L)
+                    loadHomely()
+                }
+            }
+        })
+        AdManager.cre_cious.loadAd(object : BaseAdLoader.OnLoadAdCallBack {
+            override fun onLoadFailed() {
+                viewModelScope.launch {
+                    delay(1000L)
+                    loadHomely()
+                }
+            }
+        })
+    }
+
+    private fun requestPermissionB() {
+        VpnService.prepare(activity.get()).let {
+            activity.get()?.requestPermissionForResultB?.launch(it)
+        }
+    }
+
+    fun switchB() {
+        when (state.value) {
+            BaseService.State.Idle, BaseService.State.Stopped -> if (checkPermission()) connectVPNB() else requestPermissionB()
+            else -> {}
+        }
+    }
+
+    fun connectVPNB() {
+        val startTimeStamp = System.currentTimeMillis()
+        val delayTo = startTimeStamp + 2000
+        connectJob = MainScope().launch(Dispatchers.IO) {
+            if (!ServerManager.online()) {
+                withContext(Dispatchers.Main) { showNetworkAlert() }
+                return@launch
+            }
+            interruptStateChange = true
+            state.postValue(BaseService.State.Connecting)
+            if (IpUtil.isInBlackList()) {
+                withContext(Dispatchers.Main) { showPolicyAlert() }
+                return@launch
+            }
+            while (System.currentTimeMillis() < delayTo)
+                delay(100)
+            val server = ServerManager.getFasterServer()
+            val profile: Profile = with(server) {
+                Profile(name = testiy, host = testip, remotePort = testpo, password = testord, method = testme)
+            }
+            ProfileManager.clear()
+            DataStore.profileId = ProfileManager.createProfile(profile).id
+            if (isActive)
+                Core.startService()
+
+            AdManager.clearCache()
+            withContext(Dispatchers.Main) { loadHomely() }
+            while (System.currentTimeMillis() < (startTimeStamp + 10000) && (AdManager.cre_hesit.hasAvailableCachedAd()
+                    .not() || AdManager.cre_cious.hasAvailableCachedAd().not())
+            )
+                delay(500)
+            state.postValue(BaseService.State.values()[service.service?.state ?: 0])
+            interruptStateChange = false
+        }
+
     }
 }

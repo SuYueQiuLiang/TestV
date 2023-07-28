@@ -5,11 +5,10 @@ import android.app.Application.ActivityLifecycleCallbacks
 import android.content.Intent
 import android.os.Bundle
 import com.dnbjkewbwqe.testv.ui.StartActivity
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -27,14 +26,14 @@ object ActivityManager : ActivityLifecycleCallbacks {
     private const val delay = 3000L
     var reLoadAd = false
     var coldBoot = false
-
-    fun isAvailable(activity: Activity?) : Boolean{
-        if(activity == null)
+    var plainB = true
+    fun isAvailable(activity: Activity?): Boolean {
+        if (activity == null)
             return false
-        synchronized(showingActivityList){
+        synchronized(showingActivityList) {
             val iterator = showingActivityList.iterator()
-            while (iterator.hasNext()){
-                if(iterator.next().get() == activity)
+            while (iterator.hasNext()) {
+                if (iterator.next().get() == activity)
                     return true
             }
             return false
@@ -52,7 +51,7 @@ object ActivityManager : ActivityLifecycleCallbacks {
         synchronized(this) {
             showingActivityList.add(WeakReference(activity))
             job?.cancel()
-            if(coldBoot){
+            if (coldBoot) {
                 coldBoot = false
                 activity.startActivity(StartActivity::class.java)
             }
@@ -68,15 +67,19 @@ object ActivityManager : ActivityLifecycleCallbacks {
 
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override fun onActivityStopped(activity: Activity) {
         synchronized(this) {
-            removeWeakReferenceFromList(activity,showingActivityList)
+            removeWeakReferenceFromList(activity, showingActivityList)
             d("activity $activity stopped,${showingActivityList.size} in stack now")
-            if(showingActivityList.size <= 0)
+            if (showingActivityList.size <= 0)
                 job = GlobalScope.launch {
                     delay(delay)
-                    if(isActive)
+                    if (isActive) {
                         coldBoot = true
+                        if (ReferrerUtil.creSmall.cre_xtra == "2")
+                            plainB = true
+                    }
                 }
         }
     }
@@ -92,7 +95,7 @@ object ActivityManager : ActivityLifecycleCallbacks {
         }
     }
 
-    fun finishAPP(){
+    fun finishAPP() {
         synchronized(activityList) {
             val iterator = activityList.iterator()
             while (iterator.hasNext())

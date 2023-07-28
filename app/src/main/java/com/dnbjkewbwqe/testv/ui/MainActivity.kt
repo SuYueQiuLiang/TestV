@@ -8,43 +8,55 @@ import android.view.View.OnClickListener
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import com.dnbjkewbwqe.testv.R
+import com.dnbjkewbwqe.testv.ad.AdManager
+import com.dnbjkewbwqe.testv.ad.BaseAdLoader
+import com.dnbjkewbwqe.testv.ad.ElectricType
+import com.dnbjkewbwqe.testv.beans.TestServer
 import com.dnbjkewbwqe.testv.databinding.ActivityMainBinding
 import com.dnbjkewbwqe.testv.firstUse
 import com.dnbjkewbwqe.testv.ui.viewmodel.MainActivityViewModel
+import com.dnbjkewbwqe.testv.utils.ActivityManager
 import com.dnbjkewbwqe.testv.utils.IpUtil
+import com.dnbjkewbwqe.testv.utils.ReferrerUtil
 import com.dnbjkewbwqe.testv.utils.ServerManager
 import com.dnbjkewbwqe.testv.utils.SettingUtil
 import com.dnbjkewbwqe.testv.utils.startActivity
 import com.github.shadowsocks.bg.BaseService
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
-class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),OnClickListener {
+class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(), OnClickListener {
     override val binding: ActivityMainBinding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     override val viewModel: MainActivityViewModel by viewModels()
-    private var refreshUIJob : Job? = null
-    private var active = false
-
-    val requestPermissionForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        if(it.resultCode == Activity.RESULT_OK)
+    private var refreshUIJob: Job? = null
+    private var active = true
+    val requestPermissionForResultB = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK)
+            viewModel.connectVPNB()
+    }
+    val requestPermissionForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK)
             viewModel.connectVPN()
     }
-    private val startServerListActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){
-        if(it.resultCode == Activity.RESULT_OK) {
+    private val startServerListActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == Activity.RESULT_OK) {
             active = false
             viewModel.switch()
         }
     }
+
     override fun onBackPressed() {
-        if(firstUse.value == true){
+        if (firstUse.value == true) {
             firstUse.postValue(false)
             return
         }
-        when(viewModel.tryInterruptConnect()){
+        when (viewModel.tryInterruptConnect()) {
             true -> active = true
             false -> {}
             null -> super.onBackPressed()
@@ -58,7 +70,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
             .statusBarView(binding.statusBarHolder)
             .init()
 
-        if(ImmersionBar.hasNavigationBar(this)&&ImmersionBar.isNavigationAtBottom(this))
+        if (ImmersionBar.hasNavigationBar(this) && ImmersionBar.isNavigationAtBottom(this))
             binding.navigationBarHolder.layoutParams.height = ImmersionBar.getNavigationBarHeight(this)
 
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
@@ -74,54 +86,51 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
 
         viewModel.connectService(this)
 
-        if(IpUtil.inBlackList())
+        if (IpUtil.inBlackList())
             viewModel.showPolicyAlert()
+
     }
 
-    private fun onStopped(){
+    private fun onStopped() {
         refreshUIJob?.cancel()
         binding.connectTime.text = getString(R.string.connect_time_default)
         binding.connectBtn.endLoading()
         binding.connectBtn.text = getString(R.string.connect)
         binding.robotImg.setImageResource(R.drawable.robot_idle)
-        if(ServerManager.isConnect()) {
-            startActivity(ResultActivity::class.java, Bundle().apply {
-                putString("state",BaseService.State.Stopped.name)
-                putParcelable("server",ServerManager.connectServer)
-            })
+        if (ServerManager.isConnect()) {
+            if (active.not())
+                showHomely(BaseService.State.Stopped.name, ServerManager.connectServer)
             ServerManager.onDisconnect()
         }
     }
 
-    private fun onConnecting(){
+    private fun onConnecting() {
         refreshUIJob?.cancel()
         binding.connectTime.text = getString(R.string.connect_time_default)
         binding.connectBtn.startLoading()
         binding.robotImg.setImageResource(R.drawable.robot_active)
     }
 
-    private fun onConnected(){
+    private fun onConnected() {
         refreshUIJob?.cancel()
         binding.connectTime.text = getString(R.string.connect_time_default)
         binding.connectBtn.endLoading()
         binding.connectBtn.text = getString(R.string.connected)
         binding.robotImg.setImageResource(R.drawable.robot_idle)
-        if(!ServerManager.isConnect()){
+        if (!ServerManager.isConnect()) {
             ServerManager.onConnect(ServerManager.selectServer)
-            startActivity(ResultActivity::class.java, Bundle().apply {
-                putString("state",BaseService.State.Connected.name)
-                putParcelable("server",ServerManager.connectServer)
-            })
+            if (active.not())
+                showHomely(BaseService.State.Connected.name, ServerManager.connectServer)
         }
-        refreshUIJob = MainScope().launch {
-            while (true){
+        refreshUIJob = lifecycleScope.launch {
+            while (true) {
                 binding.connectTime.text = ServerManager.connectTime
                 delay(1000L)
             }
         }
     }
 
-    private fun onStopping(){
+    private fun onStopping() {
         refreshUIJob?.cancel()
         binding.connectBtn.startLoading()
         binding.robotImg.setImageResource(R.drawable.robot_active)
@@ -129,41 +138,62 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
 
     override fun bindingData() {
         viewModel.state.observe(this) {
-            when(it){
+            when (it) {
                 BaseService.State.Connecting -> onConnecting()
                 BaseService.State.Stopping -> onStopping()
                 BaseService.State.Connected -> onConnected()
-                BaseService.State.Stopped,BaseService.State.Idle,null -> onStopped()
+                BaseService.State.Stopped, BaseService.State.Idle, null -> onStopped()
             }
+            tryB()
         }
-        firstUse.observe(this){
-            if(it){
+        firstUse.observe(this) {
+            if (it) {
                 binding.shapeFull.visibility = View.VISIBLE
                 binding.handIcon.visibility = View.VISIBLE
-            }else{
+            } else {
                 binding.shapeFull.visibility = View.GONE
                 binding.handIcon.visibility = View.GONE
             }
         }
     }
 
+    private fun tryB() {
+        if (ActivityManager.plainB.not())
+            return
+        ActivityManager.plainB = false
+        if (ReferrerUtil.referrer?.payed != true)
+            return
+        if (ReferrerUtil.creSmall.cre_xtra == "3")
+            return
+        if (Random.nextInt(100) <= (ReferrerUtil.creSmall.cre_light.toInt() - 1)) {
+            active = false
+            firstUse.postValue(false)
+            viewModel.switchB()
+        }
+    }
+
     override fun onClick(v: View?) {
-        if(firstUse.value == true && v != binding.connectBtn)
+        if (firstUse.value == true && v != binding.connectBtn)
             return
         firstUse.postValue(false)
-        when(v){
-            binding.settingBtn -> if(viewModel.tryInterruptConnect() != false){ binding.drawerLayout.open() }
-            binding.serverBtn -> if(viewModel.tryInterruptConnect() != false) {
+        when (v) {
+            binding.settingBtn -> if (viewModel.tryInterruptConnect() != false) {
+                binding.drawerLayout.open()
+            }
+
+            binding.serverBtn -> if (viewModel.tryInterruptConnect() != false) {
                 startServerListActivityForResult.launch(Intent(this, TestServerListActivity::class.java).apply {
                     putExtra("state", viewModel.state.value?.name)
                 })
             }
-            binding.connectBtn,binding.robotImg -> {
-                if(active.not())
+
+            binding.connectBtn, binding.robotImg -> {
+                if (active.not())
                     return
                 active = false
                 viewModel.switch()
             }
+
             binding.drawer.privacy -> SettingUtil.privacy(this)
             binding.drawer.share -> SettingUtil.shareApp(this)
             binding.drawer.update -> SettingUtil.updateApp(this)
@@ -177,12 +207,50 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
 
     override fun onResume() {
         super.onResume()
-        active = true
-        binding.flagImg.setImageResource(ServerManager.getFlagImgByServer(this,ServerManager.connectServer ?: ServerManager.selectServer))
+        binding.flagImg.setImageResource(ServerManager.getFlagImgByServer(this, ServerManager.connectServer ?: ServerManager.selectServer))
+        if (ActivityManager.reLoadAd) {
+            ActivityManager.reLoadAd = false
+            AdManager.cre_easy.showHolder(this, binding.adContainer, ElectricType.Small)
+            loadElectric()
+        }
     }
 
     override fun onStop() {
         super.onStop()
+        active = true
         viewModel.interruptConnect()
     }
+
+    fun loadElectric() {
+        AdManager.cre_easy.loadAd(object : BaseAdLoader.OnLoadAdCallBack {
+            override fun onLoadSuccess() {
+                showElectric()
+            }
+
+            override fun onLoadFailed() {
+                lifecycleScope.launch {
+                    delay(1000L)
+                    loadElectric()
+                }
+            }
+
+        })
+    }
+
+    fun showElectric() {
+        lifecycleScope.launch {
+            if (isActive)
+                AdManager.cre_easy.showAd(this@MainActivity, binding.adContainer, ElectricType.Small)
+        }
+    }
+
+    fun showHomely(state: String, server: TestServer?) {
+        AdManager.cre_hesit.showAd(this) {
+            startActivity(ResultActivity::class.java, Bundle().apply {
+                putString("state", state)
+                putParcelable("server", server)
+            })
+        }
+    }
+
 }

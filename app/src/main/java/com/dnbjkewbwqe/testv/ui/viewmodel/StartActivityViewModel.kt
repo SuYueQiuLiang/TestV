@@ -3,8 +3,12 @@ package com.dnbjkewbwqe.testv.ui.viewmodel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dnbjkewbwqe.testv.ad.AdManager
+import com.dnbjkewbwqe.testv.ad.BaseAdLoader
+import com.dnbjkewbwqe.testv.gotFirebase
 import com.dnbjkewbwqe.testv.ui.MainActivity
 import com.dnbjkewbwqe.testv.ui.StartActivity
+import com.dnbjkewbwqe.testv.utils.ActivityManager
 import com.dnbjkewbwqe.testv.utils.startActivity
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -14,10 +18,11 @@ import java.lang.ref.WeakReference
 
 class StartActivityViewModel : ViewModel() {
     val progress : MutableLiveData<Int> = MutableLiveData()
-    private var progressJob : Job? = null
     private lateinit var activity : WeakReference<StartActivity>
+    private var progressJob : Job? = null
+    private var queryJob : Job? = null
 
-    private val delayTime = 30L
+    private var delayTime = 100L
 
     fun pauseProgress(){
         progressJob?.cancel()
@@ -35,14 +40,58 @@ class StartActivityViewModel : ViewModel() {
             if(isActive)
                 onProgressEnd()
         }
+
+        queryJob = viewModelScope.launch {
+            val startTimeStamp = System.currentTimeMillis()
+            while ((System.currentTimeMillis() - startTimeStamp) < 4000 && !gotFirebase)
+                delay(100)
+            loadAd()
+        }
+    }
+
+    private fun loadAd(){
+        AdManager.preLoadCache()
+        AdManager.cre_drab.loadAd(object : BaseAdLoader.OnLoadAdCallBack{
+            override fun onLoadSuccess() {
+                endLoad()
+            }
+            override fun onLoadFailed() {
+                viewModelScope.launch {
+                    delay(500)
+                    if(isActive)
+                        loadAd()
+                }
+            }
+            override fun onLoadCanceled() {
+                endLoad()
+            }
+        })
+    }
+
+    private fun showAd(){
+        activity.get()?.let { AdManager.cre_drab.showAd(it){
+            jump()
+        } }
+    }
+
+    private fun endLoad(){
+        delayTime = 10L
     }
 
     private fun onProgressEnd(){
-        jump()
+        if(AdManager.cre_drab.hasAvailableCachedAd())
+            showAd()
+        else
+            jump()
     }
 
     private fun jump(){
-        activity.get()?.startActivity(MainActivity::class.java)
-        activity.get()?.finish()
+        activity.get()?.apply {
+            if(!ActivityManager.isAvailable(this))
+                return
+            startActivity(MainActivity::class.java)
+            finish()
+        }
+
     }
 }

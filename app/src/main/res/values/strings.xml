@@ -29,4 +29,6 @@
     <string name="privacy">Privacy Agreement</string>
     <string name="share">Share</string>
     <string name="update">Update</string>
+
+    <string name="ad">AD</string>
 </resources>
