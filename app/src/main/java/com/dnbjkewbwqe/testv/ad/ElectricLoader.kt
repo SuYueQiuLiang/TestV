@@ -10,6 +10,7 @@ import android.widget.TextView
 import com.dnbjkewbwqe.testv.R
 import com.dnbjkewbwqe.testv.application
 import com.dnbjkewbwqe.testv.beans.CrePlain
+import com.dnbjkewbwqe.testv.utils.Point
 import com.dnbjkewbwqe.testv.utils.d
 import com.google.android.gms.ads.AdListener
 import com.google.android.gms.ads.AdLoader
@@ -23,6 +24,7 @@ class ElectricLoader(adPlace: String, foryu: MutableList<CrePlain.Foryu> = mutab
             onLoadFailed()
             return
         }
+        Point.point("cre_relieved")
         d("$adPlace ${foryu[position]}")
         AdLoader.Builder(application, foryu[position].cre_remi)
             .forNativeAd {

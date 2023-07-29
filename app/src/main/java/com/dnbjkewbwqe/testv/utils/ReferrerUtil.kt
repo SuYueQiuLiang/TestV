@@ -74,6 +74,7 @@ object ReferrerUtil {
                         for (eachReferrer in knownReferrer) {
                             if (url.contains(eachReferrer)) {
                                 referrer = Referrer(eachReferrer)
+                                Point.point("cre_msy")
                                 installReferrerClient.endConnection()
                                 return
                             }

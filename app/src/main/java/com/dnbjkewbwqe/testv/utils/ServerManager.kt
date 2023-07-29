@@ -40,6 +40,13 @@ object ServerManager {
             application.getString(R.string.connect_time_format).format(decimalFormat.format(hours),decimalFormat.format(minutes),decimalFormat.format(seconds))
         }
 
+    val connectTimeLong
+        get() = run {
+            val currentTIme = System.currentTimeMillis()
+            val startTime = MMKVInstance.decodeLong(connectTimeKey,System.currentTimeMillis())
+            (currentTIme - startTime)/1000
+        }
+
     fun updateConfig(server: String) {
         synchronized(serverList){
             val json = if (server != "") server else readConfig()

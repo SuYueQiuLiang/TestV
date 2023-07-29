@@ -19,6 +19,7 @@ import com.dnbjkewbwqe.testv.firstUse
 import com.dnbjkewbwqe.testv.ui.viewmodel.MainActivityViewModel
 import com.dnbjkewbwqe.testv.utils.ActivityManager
 import com.dnbjkewbwqe.testv.utils.IpUtil
+import com.dnbjkewbwqe.testv.utils.Point
 import com.dnbjkewbwqe.testv.utils.ReferrerUtil
 import com.dnbjkewbwqe.testv.utils.ServerManager
 import com.dnbjkewbwqe.testv.utils.SettingUtil
@@ -93,6 +94,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
 
     }
 
+    data class ConnectTime(val time: Long)
+
     private fun onStopped() {
         refreshUIJob?.cancel()
         binding.connectTime.text = getString(R.string.connect_time_default)
@@ -100,13 +103,16 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
         binding.connectBtn.text = getString(R.string.connect)
         binding.robotImg.setImageResource(R.drawable.robot_idle)
         if (ServerManager.isConnect()) {
-            if (active.not())
+            if (active.not()) {
+                Point.point("cre_lonel", ConnectTime(ServerManager.connectTimeLong))
                 showHomely(BaseService.State.Stopped.name, ServerManager.connectServer)
+            }
             ServerManager.onDisconnect()
         }
     }
 
     private fun onConnecting() {
+        Point.point("cre_wiry")
         refreshUIJob?.cancel()
         binding.connectTime.text = getString(R.string.connect_time_default)
         binding.connectBtn.startLoading()
@@ -121,8 +127,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
         binding.robotImg.setImageResource(R.drawable.robot_idle)
         if (!ServerManager.isConnect()) {
             ServerManager.onConnect(ServerManager.selectServer)
-            if (active.not())
+            if (active.not()) {
+                Point.point("cre_quiz")
                 showHomely(BaseService.State.Connected.name, ServerManager.connectServer)
+            }
         }
         refreshUIJob = lifecycleScope.launch {
             while (true) {
@@ -133,6 +141,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
     }
 
     private fun onStopping() {
+        Point.point("cre_few")
         refreshUIJob?.cancel()
         binding.connectBtn.startLoading()
         binding.robotImg.setImageResource(R.drawable.robot_active)
@@ -150,6 +159,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
         }
         firstUse.observe(this) {
             if (it) {
+                Point.point("cre_half")
                 binding.shapeFull.visibility = View.VISIBLE
                 binding.handIcon.visibility = View.VISIBLE
             } else {
@@ -193,6 +203,9 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
                 if (active.not())
                     return
                 active = false
+                Point.point("cre_zical")
+                if (firstUse.value == true)
+                    Point.point("cre_arrow")
                 viewModel.switch()
             }
 
@@ -209,6 +222,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
 
     override fun onResume() {
         super.onResume()
+        Point.point("cre_male")
         binding.flagImg.setImageResource(ServerManager.getFlagImgByServer(this, ServerManager.connectServer ?: ServerManager.selectServer))
         if (ActivityManager.reLoadAd) {
             ActivityManager.reLoadAd = false

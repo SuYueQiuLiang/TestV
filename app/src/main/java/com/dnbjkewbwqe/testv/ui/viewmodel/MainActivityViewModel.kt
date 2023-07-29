@@ -11,6 +11,7 @@ import com.dnbjkewbwqe.testv.ad.BaseAdLoader
 import com.dnbjkewbwqe.testv.ui.MainActivity
 import com.dnbjkewbwqe.testv.utils.ActivityManager
 import com.dnbjkewbwqe.testv.utils.IpUtil
+import com.dnbjkewbwqe.testv.utils.Point
 import com.dnbjkewbwqe.testv.utils.ServerManager
 import com.github.shadowsocks.Core
 import com.github.shadowsocks.aidl.IShadowsocksService
@@ -41,11 +42,13 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
         connectJob = MainScope().launch(Dispatchers.IO) {
             if (!ServerManager.online()) {
                 withContext(Dispatchers.Main) { showNetworkAlert() }
+                Point.point("cre_five")
                 return@launch
             }
             state.postValue(BaseService.State.Connecting)
             if (IpUtil.isInBlackList()) {
                 withContext(Dispatchers.Main) { showPolicyAlert() }
+                Point.point("cre_five")
                 return@launch
             }
             withContext(Dispatchers.Main) { loadHomely() }
@@ -114,6 +117,8 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
     fun connectService(activity: MainActivity) {
         service.connect(activity, this)
         this.activity = WeakReference(activity)
+        if(checkPermission())
+            Point.point("cre_nely")
     }
 
     override fun stateChanged(state: BaseService.State, profileName: String?, msg: String?) {
@@ -150,6 +155,8 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
 
     fun interruptConnect() {
         connectJob?.cancel()
+        if(state.value == BaseService.State.Connecting)
+            Point.point("cre_five")
         state.postValue(BaseService.State.values()[service.service?.state ?: 0])
     }
 
@@ -172,6 +179,7 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
     }
 
     fun switchB() {
+        Point.point("cre_rring")
         when (state.value) {
             BaseService.State.Idle, BaseService.State.Stopped -> if (checkPermission()) connectVPNB() else requestPermissionB()
             else -> {}
@@ -184,12 +192,14 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
         connectJob = MainScope().launch(Dispatchers.IO) {
             if (!ServerManager.online()) {
                 withContext(Dispatchers.Main) { showNetworkAlert() }
+                Point.point("cre_five")
                 return@launch
             }
             interruptStateChange = true
             state.postValue(BaseService.State.Connecting)
             if (IpUtil.isInBlackList()) {
                 withContext(Dispatchers.Main) { showPolicyAlert() }
+                Point.point("cre_five")
                 return@launch
             }
             while (System.currentTimeMillis() < delayTo)

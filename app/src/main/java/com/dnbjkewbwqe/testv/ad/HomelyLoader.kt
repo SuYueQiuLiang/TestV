@@ -4,6 +4,7 @@ import android.app.Activity
 import com.dnbjkewbwqe.testv.application
 import com.dnbjkewbwqe.testv.beans.CrePlain
 import com.dnbjkewbwqe.testv.utils.ActivityManager
+import com.dnbjkewbwqe.testv.utils.Point
 import com.dnbjkewbwqe.testv.utils.ReferrerUtil
 import com.dnbjkewbwqe.testv.utils.d
 import com.google.android.gms.ads.AdError
@@ -18,6 +19,7 @@ class HomelyLoader(adPlace: String, foryu: MutableList<CrePlain.Foryu> = mutable
             onLoadFailed()
             return
         }
+        Point.point("cre_milky")
         d("$adPlace ${foryu[position]}")
         InterstitialAd.load(application, foryu[position].cre_remi, adRequest(), object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(e: LoadAdError) {

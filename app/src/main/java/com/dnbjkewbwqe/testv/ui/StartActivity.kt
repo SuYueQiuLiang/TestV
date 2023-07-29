@@ -5,6 +5,7 @@ import androidx.activity.viewModels
 import com.dnbjkewbwqe.testv.databinding.ActivityStartBinding
 import com.dnbjkewbwqe.testv.ui.viewmodel.StartActivityViewModel
 import com.dnbjkewbwqe.testv.utils.ActivityManager
+import com.dnbjkewbwqe.testv.utils.Point
 import com.gyf.immersionbar.ImmersionBar
 
 
@@ -31,6 +32,7 @@ class StartActivity : BaseActivity<ActivityStartBinding, StartActivityViewModel>
 
     override fun onResume() {
         super.onResume()
+        Point.point("cre_zippy")
         viewModel.startProgress(this)
     }
 

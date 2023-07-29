@@ -11,6 +11,7 @@ import com.dnbjkewbwqe.testv.ad.ElectricType
 import com.dnbjkewbwqe.testv.databinding.ActivityResultBinding
 import com.dnbjkewbwqe.testv.ui.viewmodel.ResultActivityViewModel
 import com.dnbjkewbwqe.testv.utils.ActivityManager
+import com.dnbjkewbwqe.testv.utils.Point
 import com.dnbjkewbwqe.testv.utils.ServerManager
 import com.github.shadowsocks.bg.BaseService
 import com.gyf.immersionbar.ImmersionBar
@@ -74,6 +75,7 @@ class ResultActivity : BaseActivity<ActivityResultBinding, ResultActivityViewMod
     }
 
     private fun showHomely() {
+        Point.point("cre_flimsr")
         AdManager.cre_pen.showAd(this) {
             finish()
         }
@@ -103,4 +105,8 @@ class ResultActivity : BaseActivity<ActivityResultBinding, ResultActivityViewMod
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        Point.point("cre_eptive")
+    }
 }

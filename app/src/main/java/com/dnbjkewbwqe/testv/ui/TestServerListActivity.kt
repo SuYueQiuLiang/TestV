@@ -11,6 +11,7 @@ import com.dnbjkewbwqe.testv.beans.TestServer
 import com.dnbjkewbwqe.testv.databinding.ActivityTestServerListBinding
 import com.dnbjkewbwqe.testv.ui.adapter.ServerRecyclerViewAdapter
 import com.dnbjkewbwqe.testv.ui.viewmodel.TestServerListActivityViewModel
+import com.dnbjkewbwqe.testv.utils.Point
 import com.dnbjkewbwqe.testv.utils.ServerManager
 import com.github.shadowsocks.bg.BaseService
 import com.gyf.immersionbar.ImmersionBar
@@ -72,4 +73,8 @@ class TestServerListActivity : BaseActivity<ActivityTestServerListBinding, TestS
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        Point.point("cre_recep")
+    }
 }
