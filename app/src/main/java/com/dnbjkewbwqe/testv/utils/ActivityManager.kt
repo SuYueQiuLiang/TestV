@@ -77,8 +77,6 @@ object ActivityManager : ActivityLifecycleCallbacks {
                     delay(delay)
                     if (isActive) {
                         coldBoot = true
-                        if (ReferrerUtil.creSmall.cre_xtra == "2")
-                            plainB = true
                     }
                 }
         }

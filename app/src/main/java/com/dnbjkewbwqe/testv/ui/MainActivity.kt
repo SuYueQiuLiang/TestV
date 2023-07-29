@@ -191,6 +191,7 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
         when (v) {
             binding.settingBtn -> if (viewModel.tryInterruptConnect() != false) {
                 binding.drawerLayout.open()
+                active = true
             }
 
             binding.serverBtn -> if (viewModel.tryInterruptConnect() != false) {
@@ -222,7 +223,10 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
 
     override fun onResume() {
         super.onResume()
-        Point.point("cre_male")
+        lifecycleScope.launch{
+            delay(500)
+            Point.point("cre_male")
+        }
         binding.flagImg.setImageResource(ServerManager.getFlagImgByServer(this, ServerManager.connectServer ?: ServerManager.selectServer))
         if (ActivityManager.reLoadAd) {
             ActivityManager.reLoadAd = false

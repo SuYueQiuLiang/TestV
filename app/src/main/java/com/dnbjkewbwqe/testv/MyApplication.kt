@@ -50,6 +50,8 @@ class MyApplication : Application() {
         IpUtil.preLoadCountryCode()
 
         ReferrerUtil.getReferrer()
+
+        ServerManager.onDisconnect()
     }
 
     private fun isMainThread() : Boolean{

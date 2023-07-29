@@ -27,14 +27,16 @@ class StartActivityViewModel : ViewModel() {
     fun pauseProgress(){
         progressJob?.cancel()
         queryJob?.cancel()
+        progressJob = null
+        queryJob = null
         progress.postValue(0)
         delayTime = 100
-
     }
+
+
 
     fun startProgress(activity : StartActivity){
         this.activity = WeakReference(activity)
-        progressJob?.cancel()
         progressJob = viewModelScope.launch{
             while ((progress.value ?: 0) < 100){
                 progress.postValue((progress.value ?: 0)+1)
@@ -43,12 +45,12 @@ class StartActivityViewModel : ViewModel() {
             if(isActive)
                 onProgressEnd()
         }
-
         queryJob = viewModelScope.launch {
             val startTimeStamp = System.currentTimeMillis()
             while ((System.currentTimeMillis() - startTimeStamp) < 4000 && !gotFirebase)
                 delay(100)
-            loadAd()
+            if(isActive)
+                loadAd()
         }
     }
 

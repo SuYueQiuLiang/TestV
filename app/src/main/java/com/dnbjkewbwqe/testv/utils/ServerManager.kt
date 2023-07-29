@@ -26,6 +26,8 @@ object ServerManager {
     private const val connectTimeKey = "connectTimeKey"
     private const val connectServerKey = "connectServerKey"
 
+    var pbConnected = false
+
     val connectServer
         get() = MMKVInstance.decodeParcelable(connectServerKey,TestServer::class.java)
     val connectTime

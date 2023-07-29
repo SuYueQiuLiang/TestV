@@ -75,7 +75,7 @@ class ServiceNotification(private val service: BaseService.Interface, profileNam
             .setColor(ContextCompat.getColor(service, R.color.material_primary_500))
             .setTicker(service.getString(R.string.forward_success))
             //.setContentIntent(Core.configureIntent(service))
-            .setSmallIcon(R.mipmap.logo)
+            .setSmallIcon(R.mipmap.banner)
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setPriority(if (visible) NotificationCompat.PRIORITY_LOW else NotificationCompat.PRIORITY_MIN)
 

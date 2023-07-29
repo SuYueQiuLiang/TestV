@@ -107,6 +107,9 @@ class ResultActivity : BaseActivity<ActivityResultBinding, ResultActivityViewMod
 
     override fun onResume() {
         super.onResume()
-        Point.point("cre_eptive")
+        lifecycleScope.launch{
+            delay(500)
+            Point.point("cre_eptive")
+        }
     }
 }

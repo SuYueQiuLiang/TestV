@@ -98,6 +98,7 @@ abstract class BaseAdLoader<T>(protected val adPlace: String, protected val fory
     }
 
     protected fun onShowedAd() {
+        d("$adPlace showed ad")
         AdManager.showedAd()
     }
 

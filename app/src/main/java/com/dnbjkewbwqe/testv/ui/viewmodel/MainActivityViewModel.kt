@@ -13,6 +13,7 @@ import com.dnbjkewbwqe.testv.utils.ActivityManager
 import com.dnbjkewbwqe.testv.utils.IpUtil
 import com.dnbjkewbwqe.testv.utils.Point
 import com.dnbjkewbwqe.testv.utils.ServerManager
+import com.dnbjkewbwqe.testv.utils.d
 import com.github.shadowsocks.Core
 import com.github.shadowsocks.aidl.IShadowsocksService
 import com.github.shadowsocks.aidl.ShadowsocksConnection
@@ -59,6 +60,7 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
             while (System.currentTimeMillis() < delayTo)
                 delay(200)
             val server = ServerManager.getFasterServer()
+            d(server.toString())
             val profile: Profile = with(server) {
                 Profile(name = testiy, host = testip, remotePort = testpo, password = testord, method = testme)
             }
@@ -74,7 +76,7 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
         val delayTo = startTimeStamp + 2000
         connectJob = MainScope().launch(Dispatchers.IO) {
             state.postValue(BaseService.State.Stopping)
-            withContext(Dispatchers.Main) { loadHomely() }
+            withContext(Dispatchers.Main) { AdManager.preLoadCache() }
             while (System.currentTimeMillis() < (startTimeStamp + 10000) && (AdManager.cre_hesit.hasAvailableCachedAd()
                     .not() || AdManager.cre_cious.hasAvailableCachedAd().not())
             )
@@ -155,9 +157,11 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
 
     fun interruptConnect() {
         connectJob?.cancel()
+        ServerManager.pbConnected = false
         if(state.value == BaseService.State.Connecting)
             Point.point("cre_five")
         state.postValue(BaseService.State.values()[service.service?.state ?: 0])
+        interruptStateChange = false
     }
 
     fun tryInterruptConnect(): Boolean? {
@@ -212,7 +216,7 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
             DataStore.profileId = ProfileManager.createProfile(profile).id
             if (isActive)
                 Core.startService()
-
+            ServerManager.pbConnected = true
             AdManager.clearCache()
             withContext(Dispatchers.Main) { loadHomely() }
             while (System.currentTimeMillis() < (startTimeStamp + 10000) && (AdManager.cre_hesit.hasAvailableCachedAd()
@@ -220,6 +224,7 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
             )
                 delay(500)
             state.postValue(BaseService.State.values()[service.service?.state ?: 0])
+            ServerManager.pbConnected = false
             interruptStateChange = false
         }
 

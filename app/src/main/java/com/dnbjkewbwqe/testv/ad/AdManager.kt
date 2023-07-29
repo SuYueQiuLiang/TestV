@@ -88,8 +88,10 @@ object AdManager {
     }
 
     fun preLoadCache(){
-        cre_easy.cleanCache()
-        cre_cious.cleanCache()
+        cre_easy.loadAd()
+        cre_cious.loadAd()
+        cre_hesit.loadAd()
+        cre_pen.loadAd()
     }
 
     fun clearCache(){

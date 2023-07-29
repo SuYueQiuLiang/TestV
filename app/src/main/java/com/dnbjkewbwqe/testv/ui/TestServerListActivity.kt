@@ -26,7 +26,11 @@ class TestServerListActivity : BaseActivity<ActivityTestServerListBinding, TestS
 
         val adapter = ServerRecyclerViewAdapter(ServerManager.serverList) {
             if (it == ServerManager.selectServer)
-                return@ServerRecyclerViewAdapter
+                if(state == BaseService.State.Idle || state == BaseService.State.Stopped){
+                    setResult(Activity.RESULT_OK)
+                    finish()
+                }else
+                    return@ServerRecyclerViewAdapter
             when (state) {
                 BaseService.State.Idle, BaseService.State.Stopped -> {
                     ServerManager.onSelectServer(it)

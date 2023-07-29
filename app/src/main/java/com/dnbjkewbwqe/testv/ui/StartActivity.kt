@@ -6,6 +6,7 @@ import com.dnbjkewbwqe.testv.databinding.ActivityStartBinding
 import com.dnbjkewbwqe.testv.ui.viewmodel.StartActivityViewModel
 import com.dnbjkewbwqe.testv.utils.ActivityManager
 import com.dnbjkewbwqe.testv.utils.Point
+import com.dnbjkewbwqe.testv.utils.ReferrerUtil
 import com.gyf.immersionbar.ImmersionBar
 
 
@@ -17,7 +18,6 @@ class StartActivity : BaseActivity<ActivityStartBinding, StartActivityViewModel>
             .transparentBar()
             .statusBarDarkFont(true)
             .init()
-        ActivityManager.reLoadAd = true
     }
 
     override fun onBackPressed() {
@@ -32,12 +32,19 @@ class StartActivity : BaseActivity<ActivityStartBinding, StartActivityViewModel>
 
     override fun onResume() {
         super.onResume()
-        Point.point("cre_zippy")
+        ActivityManager.reLoadAd = true
         viewModel.startProgress(this)
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onStart() {
+        super.onStart()
+        if (ReferrerUtil.creSmall.cre_xtra == "2")
+            ActivityManager.plainB = true
+        Point.point("cre_zippy")
+    }
+
+    override fun onPause() {
+        super.onPause()
         viewModel.pauseProgress()
     }
 
