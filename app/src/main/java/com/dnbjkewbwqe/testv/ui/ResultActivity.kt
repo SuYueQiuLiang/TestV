@@ -10,6 +10,7 @@ import com.dnbjkewbwqe.testv.ad.BaseAdLoader
 import com.dnbjkewbwqe.testv.ad.ElectricType
 import com.dnbjkewbwqe.testv.databinding.ActivityResultBinding
 import com.dnbjkewbwqe.testv.ui.viewmodel.ResultActivityViewModel
+import com.dnbjkewbwqe.testv.utils.ActivityManager
 import com.dnbjkewbwqe.testv.utils.ServerManager
 import com.github.shadowsocks.bg.BaseService
 import com.gyf.immersionbar.ImmersionBar
@@ -37,7 +38,7 @@ class ResultActivity : BaseActivity<ActivityResultBinding, ResultActivityViewMod
 
         AdManager.cre_cious.showHolder(this, binding.adContainer, ElectricType.Big)
         loadElectric()
-        viewModel.loadHomely()
+        loadHomely()
     }
 
     private fun onStopped() {
@@ -60,6 +61,18 @@ class ResultActivity : BaseActivity<ActivityResultBinding, ResultActivityViewMod
         showHomely()
     }
 
+    fun loadHomely() {
+        AdManager.cre_pen.loadAd(object : BaseAdLoader.OnLoadAdCallBack {
+            override fun onLoadFailed() {
+                lifecycleScope.launch {
+                    delay(1000L)
+                    if (ActivityManager.isAvailable(this@ResultActivity))
+                        loadHomely()
+                }
+            }
+        })
+    }
+
     private fun showHomely() {
         AdManager.cre_pen.showAd(this) {
             finish()
@@ -75,7 +88,8 @@ class ResultActivity : BaseActivity<ActivityResultBinding, ResultActivityViewMod
             override fun onLoadFailed() {
                 lifecycleScope.launch {
                     delay(1000L)
-                    loadElectric()
+                    if (ActivityManager.isAvailable(this@ResultActivity))
+                        loadElectric()
                 }
             }
 

@@ -23,6 +23,7 @@ class ElectricLoader(adPlace: String, foryu: MutableList<CrePlain.Foryu> = mutab
             onLoadFailed()
             return
         }
+        d("$adPlace ${foryu[position]}")
         AdLoader.Builder(application, foryu[position].cre_remi)
             .forNativeAd {
                 onLoadSuccess(it)

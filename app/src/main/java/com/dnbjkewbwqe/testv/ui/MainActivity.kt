@@ -232,7 +232,8 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
             override fun onLoadFailed() {
                 lifecycleScope.launch {
                     delay(1000L)
-                    loadElectric()
+                    if (ActivityManager.isAvailable(this@MainActivity))
+                        loadElectric()
                 }
             }
 

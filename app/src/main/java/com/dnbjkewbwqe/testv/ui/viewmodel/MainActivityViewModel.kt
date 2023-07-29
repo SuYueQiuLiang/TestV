@@ -164,24 +164,6 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
         return null
     }
 
-    fun loadHomely() {
-        AdManager.cre_hesit.loadAd(object : BaseAdLoader.OnLoadAdCallBack {
-            override fun onLoadFailed() {
-                viewModelScope.launch {
-                    delay(1000L)
-                    loadHomely()
-                }
-            }
-        })
-        AdManager.cre_cious.loadAd(object : BaseAdLoader.OnLoadAdCallBack {
-            override fun onLoadFailed() {
-                viewModelScope.launch {
-                    delay(1000L)
-                    loadHomely()
-                }
-            }
-        })
-    }
 
     private fun requestPermissionB() {
         VpnService.prepare(activity.get()).let {
@@ -229,6 +211,26 @@ class MainActivityViewModel : ViewModel(), ShadowsocksConnection.Callback {
                 delay(500)
             state.postValue(BaseService.State.values()[service.service?.state ?: 0])
             interruptStateChange = false
+        }
+
+    }
+
+    fun loadHomely() {
+        viewModelScope.launch {
+            delay(1000L)
+            AdManager.cre_hesit.loadAd(object : BaseAdLoader.OnLoadAdCallBack {
+                override fun onLoadFailed() {
+                    if (ActivityManager.isAvailable(activity.get()))
+                        loadHomely()
+                }
+            })
+            AdManager.cre_cious.loadAd(object : BaseAdLoader.OnLoadAdCallBack {
+                override fun onLoadFailed() {
+                    if (ActivityManager.isAvailable(activity.get()))
+                        loadHomely()
+                }
+            })
+
         }
 
     }

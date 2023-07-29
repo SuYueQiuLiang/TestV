@@ -19,6 +19,7 @@ class StupendousLoader(adPlace: String, foryu: MutableList<CrePlain.Foryu> = mut
             onLoadFailed()
             return
         }
+        d("$adPlace ${foryu[position]}")
         when (foryu[position].cre_kind) {
             "stupendous" -> loadStupendous(position)
             else -> loadHomely(position)
@@ -51,28 +52,28 @@ class StupendousLoader(adPlace: String, foryu: MutableList<CrePlain.Foryu> = mut
         })
     }
 
-    fun showAd(activity: Activity, onDismissAdCallback: () -> Unit){
-        if(AdManager.isUpToTimes()){
+    fun showAd(activity: Activity, onDismissAdCallback: () -> Unit) {
+        if (AdManager.isUpToTimes()) {
             d("$adPlace show ad failed,touched limit")
             onDismissAdCallback.invoke()
             return
         }
         val ad = getAvailableCachedAd()
-        if(ad == null){
+        if (ad == null) {
             d("$adPlace show ad failed,there is no available cached ad")
             onDismissAdCallback.invoke()
             return
         }
-        when(ad.ad){
-            is AppOpenAd -> showStupendous(ad,activity,onDismissAdCallback)
-            is InterstitialAd -> showHomely(ad,activity,onDismissAdCallback)
+        when (ad.ad) {
+            is AppOpenAd -> showStupendous(ad, activity, onDismissAdCallback)
+            is InterstitialAd -> showHomely(ad, activity, onDismissAdCallback)
             else -> return
         }
     }
 
     private fun showStupendous(ad: CachedAd<Any>, activity: Activity, onDismissAdCallback: () -> Unit) {
         val openAd = (ad.ad as AppOpenAd)
-        openAd.fullScreenContentCallback = object : FullScreenContentCallback(){
+        openAd.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdClicked() {
                 onCLicked()
             }
@@ -90,9 +91,9 @@ class StupendousLoader(adPlace: String, foryu: MutableList<CrePlain.Foryu> = mut
                 onShowedAd()
             }
         }
-        if(ActivityManager.isAvailable(activity))
+        if (ActivityManager.isAvailable(activity))
             openAd.show(activity)
-        else{
+        else {
             cacheAd(ad)
             onDismissAdCallback.invoke()
         }
@@ -101,7 +102,7 @@ class StupendousLoader(adPlace: String, foryu: MutableList<CrePlain.Foryu> = mut
 
     private fun showHomely(ad: CachedAd<Any>, activity: Activity, onDismissAdCallback: () -> Unit) {
         val openAd = (ad.ad as InterstitialAd)
-        openAd.fullScreenContentCallback = object : FullScreenContentCallback(){
+        openAd.fullScreenContentCallback = object : FullScreenContentCallback() {
             override fun onAdClicked() {
                 onCLicked()
             }
@@ -119,9 +120,9 @@ class StupendousLoader(adPlace: String, foryu: MutableList<CrePlain.Foryu> = mut
                 onShowedAd()
             }
         }
-        if(ActivityManager.isAvailable(activity))
+        if (ActivityManager.isAvailable(activity))
             openAd.show(activity)
-        else{
+        else {
             cacheAd(ad)
             onDismissAdCallback.invoke()
         }

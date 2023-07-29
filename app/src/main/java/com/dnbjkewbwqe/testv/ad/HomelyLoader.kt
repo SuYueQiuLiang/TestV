@@ -18,6 +18,7 @@ class HomelyLoader(adPlace: String, foryu: MutableList<CrePlain.Foryu> = mutable
             onLoadFailed()
             return
         }
+        d("$adPlace ${foryu[position]}")
         InterstitialAd.load(application, foryu[position].cre_remi, adRequest(), object : InterstitialAdLoadCallback() {
             override fun onAdFailedToLoad(e: LoadAdError) {
                 d("$adPlace load ad with ${foryu[position].cre_remi} failed,try next")

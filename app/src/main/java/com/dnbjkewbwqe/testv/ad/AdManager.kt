@@ -64,9 +64,11 @@ object AdManager {
 
     fun updateConfig(cfg: String) {
         synchronized(this){
-            var str = if (cfg != "") cfg else localConfig
+            var str = if (cfg != "") {
+                MMKVConfig = cfg
+                cfg
+            } else localConfig
             val crePlain: CrePlain = try {
-                MMKVConfig = str
                 Gson().fromJson(str, CrePlain::class.java)
             } catch (e: Exception) {
                 e.printStackTrace()

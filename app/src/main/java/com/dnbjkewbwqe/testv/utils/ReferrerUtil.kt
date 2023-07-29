@@ -34,9 +34,11 @@ object ReferrerUtil {
 
     fun updateConfig(cfg: String) {
         synchronized(this) {
-            var str = if (cfg != "") cfg else localConfig
+            var str = if (cfg != "") {
+                MMKVConfig = cfg
+                cfg
+            } else localConfig
             creSmall = try {
-                MMKVConfig = str
                 Gson().fromJson(str, CreSmall::class.java)
             } catch (e: Exception) {
                 e.printStackTrace()
