@@ -39,10 +39,12 @@ class MainActivity : BaseActivity<ActivityMainBinding, MainActivityViewModel>(),
     val requestPermissionForResultB = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK)
             viewModel.connectVPNB()
+        else active = true
     }
     val requestPermissionForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK)
             viewModel.connectVPN()
+        else active = true
     }
     private val startServerListActivityForResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK) {

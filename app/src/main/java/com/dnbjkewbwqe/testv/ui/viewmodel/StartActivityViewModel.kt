@@ -26,7 +26,10 @@ class StartActivityViewModel : ViewModel() {
 
     fun pauseProgress(){
         progressJob?.cancel()
+        queryJob?.cancel()
         progress.postValue(0)
+        delayTime = 100
+
     }
 
     fun startProgress(activity : StartActivity){
@@ -94,4 +97,5 @@ class StartActivityViewModel : ViewModel() {
         }
 
     }
+
 }
