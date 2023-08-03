@@ -16,9 +16,9 @@ buildscript {
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20'
 
         classpath 'org.mozilla.rust-android-gradle:plugin:0.9.3'
-        classpath 'com.github.megatronking.stringfog:gradle-plugin:5.0.0'
+        classpath 'com.github.megatronking.stringfog:gradle-plugin:4.0.1'
         // 选用加解密算法库，默认实现了xor算法，也可以使用自己的加解密库。
-        classpath 'com.github.megatronking.stringfog:xor:5.0.0'
+        classpath 'com.github.megatronking.stringfog:xor:4.0.1'
     }
 }
 
